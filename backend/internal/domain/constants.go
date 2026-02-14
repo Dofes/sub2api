@@ -18,10 +18,12 @@ const (
 
 // Platform constants
 const (
-	PlatformAnthropic   = "anthropic"
-	PlatformOpenAI      = "openai"
-	PlatformGemini      = "gemini"
-	PlatformAntigravity = "antigravity"
+	PlatformAnthropic    = "anthropic"
+	PlatformOpenAI       = "openai"
+	PlatformGemini       = "gemini"
+	PlatformAntigravity  = "antigravity"
+	PlatformOpenAICompat = "openai_compat" // 任何 OpenAI Chat Completions 兼容 API
+	PlatformOpenRouter   = "openrouter"    // 向后兼容旧数据，等同于 openai_compat
 )
 
 // Account type constants

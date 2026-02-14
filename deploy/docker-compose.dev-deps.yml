@@ -1,0 +1,42 @@
+# 仅启动 PostgreSQL + Redis 依赖，用于本地 Go 后端开发
+# 使用方法：docker-compose -f docker-compose.dev-deps.yml up -d
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: sub2api-dev-postgres
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - dev_postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=sub2api
+      - POSTGRES_PASSWORD=sub2api
+      - POSTGRES_DB=sub2api
+      - TZ=Asia/Shanghai
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sub2api -d sub2api"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: sub2api-dev-redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6500:6379"
+    volumes:
+      - dev_redis_data:/data
+    command: redis-server --save 60 1 --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  dev_postgres_data:
+    driver: local
+  dev_redis_data:
+    driver: local

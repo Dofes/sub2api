@@ -2,16 +2,22 @@
   <div
     class="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-700 dark:bg-blue-900/30"
   >
-      <div class="flex items-start gap-4">
-      <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-500">
+    <div class="flex items-start gap-4">
+      <div
+        class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-500"
+      >
         <Icon name="link" size="md" class="text-white" />
       </div>
       <div class="flex-1">
-        <h4 class="mb-3 font-semibold text-blue-900 dark:text-blue-200">{{ oauthTitle }}</h4>
+        <h4 class="mb-3 font-semibold text-blue-900 dark:text-blue-200">
+          {{ oauthTitle }}
+        </h4>
 
         <!-- Auth Method Selection -->
         <div v-if="showMethodSelection" class="mb-4">
-          <label class="mb-2 block text-sm font-medium text-blue-800 dark:text-blue-300">
+          <label
+            class="mb-2 block text-sm font-medium text-blue-800 dark:text-blue-300"
+          >
             {{ methodLabel }}
           </label>
           <div class="flex flex-wrap gap-4">
@@ -23,10 +29,13 @@
                 class="text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-blue-900 dark:text-blue-200">{{
-                t('admin.accounts.oauth.manualAuth')
+                t("admin.accounts.oauth.manualAuth")
               }}</span>
             </label>
-            <label v-if="showCookieOption" class="flex cursor-pointer items-center gap-2">
+            <label
+              v-if="showCookieOption"
+              class="flex cursor-pointer items-center gap-2"
+            >
               <input
                 v-model="inputMethod"
                 type="radio"
@@ -34,10 +43,13 @@
                 class="text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-blue-900 dark:text-blue-200">{{
-                t('admin.accounts.oauth.cookieAutoAuth')
+                t("admin.accounts.oauth.cookieAutoAuth")
               }}</span>
             </label>
-            <label v-if="showRefreshTokenOption" class="flex cursor-pointer items-center gap-2">
+            <label
+              v-if="showRefreshTokenOption"
+              class="flex cursor-pointer items-center gap-2"
+            >
               <input
                 v-model="inputMethod"
                 type="radio"
@@ -45,7 +57,7 @@
                 class="text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-blue-900 dark:text-blue-200">{{
-                t(getOAuthKey('refreshTokenAuth'))
+                t(getOAuthKey("refreshTokenAuth"))
               }}</span>
             </label>
           </div>
@@ -57,7 +69,7 @@
             class="rounded-lg border border-blue-300 bg-white/80 p-4 dark:border-blue-600 dark:bg-gray-800/80"
           >
             <p class="mb-3 text-sm text-blue-700 dark:text-blue-300">
-              {{ t(getOAuthKey('refreshTokenDesc')) }}
+              {{ t(getOAuthKey("refreshTokenDesc")) }}
             </p>
 
             <!-- Refresh Token Input -->
@@ -71,7 +83,11 @@
                   v-if="parsedRefreshTokenCount > 1"
                   class="rounded-full bg-blue-500 px-2 py-0.5 text-xs text-white"
                 >
-                  {{ t('admin.accounts.oauth.keysCount', { count: parsedRefreshTokenCount }) }}
+                  {{
+                    t("admin.accounts.oauth.keysCount", {
+                      count: parsedRefreshTokenCount,
+                    })
+                  }}
                 </span>
               </label>
               <textarea
@@ -84,7 +100,11 @@
                 v-if="parsedRefreshTokenCount > 1"
                 class="mt-1 text-xs text-blue-600 dark:text-blue-400"
               >
-                {{ t('admin.accounts.oauth.batchCreateAccounts', { count: parsedRefreshTokenCount }) }}
+                {{
+                  t("admin.accounts.oauth.batchCreateAccounts", {
+                    count: parsedRefreshTokenCount,
+                  })
+                }}
               </p>
             </div>
 
@@ -93,7 +113,9 @@
               v-if="error"
               class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-700 dark:bg-red-900/30"
             >
-              <p class="whitespace-pre-line text-sm text-red-600 dark:text-red-400">
+              <p
+                class="whitespace-pre-line text-sm text-red-600 dark:text-red-400"
+              >
                 {{ error }}
               </p>
             </div>
@@ -128,8 +150,8 @@
               <Icon v-else name="sparkles" size="sm" class="mr-2" />
               {{
                 loading
-                  ? t(getOAuthKey('validating'))
-                  : t(getOAuthKey('validateAndCreate'))
+                  ? t(getOAuthKey("validating"))
+                  : t(getOAuthKey("validateAndCreate"))
               }}
             </button>
           </div>
@@ -141,7 +163,7 @@
             class="rounded-lg border border-blue-300 bg-white/80 p-4 dark:border-blue-600 dark:bg-gray-800/80"
           >
             <p class="mb-3 text-sm text-blue-700 dark:text-blue-300">
-              {{ t('admin.accounts.oauth.cookieAutoAuthDesc') }}
+              {{ t("admin.accounts.oauth.cookieAutoAuthDesc") }}
             </p>
 
             <!-- sessionKey Input -->
@@ -150,12 +172,16 @@
                 class="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
               >
                 <Icon name="key" size="sm" class="text-blue-500" />
-                {{ t('admin.accounts.oauth.sessionKey') }}
+                {{ t("admin.accounts.oauth.sessionKey") }}
                 <span
                   v-if="parsedKeyCount > 1 && allowMultiple"
                   class="rounded-full bg-blue-500 px-2 py-0.5 text-xs text-white"
                 >
-                  {{ t('admin.accounts.oauth.keysCount', { count: parsedKeyCount }) }}
+                  {{
+                    t("admin.accounts.oauth.keysCount", {
+                      count: parsedKeyCount,
+                    })
+                  }}
                 </span>
                 <button
                   v-if="showHelp"
@@ -192,7 +218,11 @@
                 v-if="parsedKeyCount > 1 && allowMultiple"
                 class="mt-1 text-xs text-blue-600 dark:text-blue-400"
               >
-                {{ t('admin.accounts.oauth.batchCreateAccounts', { count: parsedKeyCount }) }}
+                {{
+                  t("admin.accounts.oauth.batchCreateAccounts", {
+                    count: parsedKeyCount,
+                  })
+                }}
               </p>
             </div>
 
@@ -202,17 +232,17 @@
               class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-700 dark:bg-amber-900/30"
             >
               <h5 class="mb-2 font-semibold text-amber-800 dark:text-amber-200">
-                {{ t('admin.accounts.oauth.howToGetSessionKey') }}
+                {{ t("admin.accounts.oauth.howToGetSessionKey") }}
               </h5>
               <ol
                 class="list-inside list-decimal space-y-1 text-xs text-amber-700 dark:text-amber-300"
               >
-                <li>{{ t('admin.accounts.oauth.step1') }}</li>
-                <li>{{ t('admin.accounts.oauth.step2') }}</li>
-                <li>{{ t('admin.accounts.oauth.step3') }}</li>
-                <li>{{ t('admin.accounts.oauth.step4') }}</li>
-                <li>{{ t('admin.accounts.oauth.step5') }}</li>
-                <li>{{ t('admin.accounts.oauth.step6') }}</li>
+                <li>{{ t("admin.accounts.oauth.step1") }}</li>
+                <li>{{ t("admin.accounts.oauth.step2") }}</li>
+                <li>{{ t("admin.accounts.oauth.step3") }}</li>
+                <li>{{ t("admin.accounts.oauth.step4") }}</li>
+                <li>{{ t("admin.accounts.oauth.step5") }}</li>
+                <li>{{ t("admin.accounts.oauth.step6") }}</li>
               </ol>
               <p
                 class="mt-2 text-xs text-amber-600 dark:text-amber-400"
@@ -225,7 +255,9 @@
               v-if="error"
               class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-700 dark:bg-red-900/30"
             >
-              <p class="whitespace-pre-line text-sm text-red-600 dark:text-red-400">
+              <p
+                class="whitespace-pre-line text-sm text-red-600 dark:text-red-400"
+              >
                 {{ error }}
               </p>
             </div>
@@ -260,8 +292,8 @@
               <Icon v-else name="sparkles" size="sm" class="mr-2" />
               {{
                 loading
-                  ? t('admin.accounts.oauth.authorizing')
-                  : t('admin.accounts.oauth.startAutoAuth')
+                  ? t("admin.accounts.oauth.authorizing")
+                  : t("admin.accounts.oauth.startAutoAuth")
               }}
             </button>
           </div>
@@ -289,27 +321,39 @@
                 </p>
                 <div v-if="showProjectId && platform === 'gemini'" class="mb-3">
                   <label class="input-label flex items-center gap-2">
-                    {{ t('admin.accounts.oauth.gemini.projectIdLabel') }}
+                    {{ t("admin.accounts.oauth.gemini.projectIdLabel") }}
                     <a
                       href="https://console.cloud.google.com/"
                       target="_blank"
                       rel="noopener noreferrer"
                       class="inline-flex items-center gap-1 text-xs font-normal text-blue-500 hover:text-blue-600 dark:text-blue-400"
                     >
-                      <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                      <svg
+                        class="h-3 w-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"
+                        />
                       </svg>
-                      {{ t('admin.accounts.oauth.gemini.howToGetProjectId') }}
+                      {{ t("admin.accounts.oauth.gemini.howToGetProjectId") }}
                     </a>
                   </label>
                   <input
                     v-model="projectId"
                     type="text"
                     class="input w-full font-mono text-sm"
-                    :placeholder="t('admin.accounts.oauth.gemini.projectIdPlaceholder')"
+                    :placeholder="
+                      t('admin.accounts.oauth.gemini.projectIdPlaceholder')
+                    "
                   />
                   <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    {{ t('admin.accounts.oauth.gemini.projectIdHint') }}
+                    {{ t("admin.accounts.oauth.gemini.projectIdHint") }}
                   </p>
                 </div>
                 <button
@@ -340,7 +384,11 @@
                     ></path>
                   </svg>
                   <Icon v-else name="link" size="sm" class="mr-2" />
-                  {{ loading ? t('admin.accounts.oauth.generating') : oauthGenerateAuthUrl }}
+                  {{
+                    loading
+                      ? t("admin.accounts.oauth.generating")
+                      : oauthGenerateAuthUrl
+                  }}
                 </button>
                 <div v-else class="space-y-3">
                   <div class="flex items-center gap-2">
@@ -385,7 +433,7 @@
                     @click="handleRegenerate"
                   >
                     <Icon name="refresh" size="xs" class="mr-1 inline" />
-                    {{ t('admin.accounts.oauth.regenerate') }}
+                    {{ t("admin.accounts.oauth.regenerate") }}
                   </button>
                 </div>
               </div>
@@ -453,7 +501,11 @@
                 ></p>
                 <div>
                   <label class="input-label">
-                    <Icon name="key" size="sm" class="mr-1 inline text-blue-500" />
+                    <Icon
+                      name="key"
+                      size="sm"
+                      class="mr-1 inline text-blue-500"
+                    />
                     {{ oauthAuthCode }}
                   </label>
                   <textarea
@@ -480,8 +532,16 @@
                         :stroke-width="2"
                       />
                       <div class="text-sm text-amber-800 dark:text-amber-300">
-                        <p class="font-semibold">{{ $t('admin.accounts.oauth.gemini.stateWarningTitle') }}</p>
-                        <p class="mt-1">{{ $t('admin.accounts.oauth.gemini.stateWarningDesc') }}</p>
+                        <p class="font-semibold">
+                          {{
+                            $t("admin.accounts.oauth.gemini.stateWarningTitle")
+                          }}
+                        </p>
+                        <p class="mt-1">
+                          {{
+                            $t("admin.accounts.oauth.gemini.stateWarningDesc")
+                          }}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -492,7 +552,9 @@
                   v-if="error"
                   class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-700 dark:bg-red-900/30"
                 >
-                  <p class="whitespace-pre-line text-sm text-red-600 dark:text-red-400">
+                  <p
+                    class="whitespace-pre-line text-sm text-red-600 dark:text-red-400"
+                  >
                     {{ error }}
                   </p>
                 </div>
@@ -506,178 +568,207 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useClipboard } from '@/composables/useClipboard'
-import Icon from '@/components/icons/Icon.vue'
-import type { AddMethod, AuthInputMethod } from '@/composables/useAccountOAuth'
+import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { useClipboard } from "@/composables/useClipboard";
+import Icon from "@/components/icons/Icon.vue";
+import type { AddMethod, AuthInputMethod } from "@/composables/useAccountOAuth";
 
 interface Props {
-  addMethod: AddMethod
-  authUrl?: string
-  sessionId?: string
-  loading?: boolean
-  error?: string
-  showHelp?: boolean
-  showProxyWarning?: boolean
-  allowMultiple?: boolean
-  methodLabel?: string
-  showCookieOption?: boolean // Whether to show cookie auto-auth option
-  showRefreshTokenOption?: boolean // Whether to show refresh token input option (OpenAI only)
-  platform?: 'anthropic' | 'openai' | 'gemini' | 'antigravity' // Platform type for different UI/text
-  showProjectId?: boolean // New prop to control project ID visibility
+  addMethod: AddMethod;
+  authUrl?: string;
+  sessionId?: string;
+  loading?: boolean;
+  error?: string;
+  showHelp?: boolean;
+  showProxyWarning?: boolean;
+  allowMultiple?: boolean;
+  methodLabel?: string;
+  showCookieOption?: boolean; // Whether to show cookie auto-auth option
+  showRefreshTokenOption?: boolean; // Whether to show refresh token input option (OpenAI only)
+  platform?:
+    | "anthropic"
+    | "openai"
+    | "gemini"
+    | "antigravity"
+    | "openai_compat"
+    | "openrouter"; // Platform type for different UI/text
+  showProjectId?: boolean; // New prop to control project ID visibility
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  authUrl: '',
-  sessionId: '',
+  authUrl: "",
+  sessionId: "",
   loading: false,
-  error: '',
+  error: "",
   showHelp: true,
   showProxyWarning: true,
   allowMultiple: false,
-  methodLabel: 'Authorization Method',
+  methodLabel: "Authorization Method",
   showCookieOption: true,
   showRefreshTokenOption: false,
-  platform: 'anthropic',
-  showProjectId: true
-})
+  platform: "anthropic",
+  showProjectId: true,
+});
 
 const emit = defineEmits<{
-  'generate-url': []
-  'exchange-code': [code: string]
-  'cookie-auth': [sessionKey: string]
-  'validate-refresh-token': [refreshToken: string]
-  'update:inputMethod': [method: AuthInputMethod]
-}>()
+  "generate-url": [];
+  "exchange-code": [code: string];
+  "cookie-auth": [sessionKey: string];
+  "validate-refresh-token": [refreshToken: string];
+  "update:inputMethod": [method: AuthInputMethod];
+}>();
 
-const { t } = useI18n()
+const { t } = useI18n();
 
-const isOpenAI = computed(() => props.platform === 'openai')
+const isOpenAI = computed(() => props.platform === "openai");
 
 // Get translation key based on platform
 const getOAuthKey = (key: string) => {
-  if (props.platform === 'openai') return `admin.accounts.oauth.openai.${key}`
-  if (props.platform === 'gemini') return `admin.accounts.oauth.gemini.${key}`
-  if (props.platform === 'antigravity') return `admin.accounts.oauth.antigravity.${key}`
-  return `admin.accounts.oauth.${key}`
-}
+  if (props.platform === "openai") return `admin.accounts.oauth.openai.${key}`;
+  if (props.platform === "gemini") return `admin.accounts.oauth.gemini.${key}`;
+  if (props.platform === "antigravity")
+    return `admin.accounts.oauth.antigravity.${key}`;
+  return `admin.accounts.oauth.${key}`;
+};
 
 // Computed translations for current platform
-const oauthTitle = computed(() => t(getOAuthKey('title')))
-const oauthFollowSteps = computed(() => t(getOAuthKey('followSteps')))
-const oauthStep1GenerateUrl = computed(() => t(getOAuthKey('step1GenerateUrl')))
-const oauthGenerateAuthUrl = computed(() => t(getOAuthKey('generateAuthUrl')))
-const oauthStep2OpenUrl = computed(() => t(getOAuthKey('step2OpenUrl')))
-const oauthOpenUrlDesc = computed(() => t(getOAuthKey('openUrlDesc')))
-const oauthStep3EnterCode = computed(() => t(getOAuthKey('step3EnterCode')))
-const oauthAuthCodeDesc = computed(() => t(getOAuthKey('authCodeDesc')))
-const oauthAuthCode = computed(() => t(getOAuthKey('authCode')))
-const oauthAuthCodePlaceholder = computed(() => t(getOAuthKey('authCodePlaceholder')))
-const oauthAuthCodeHint = computed(() => t(getOAuthKey('authCodeHint')))
+const oauthTitle = computed(() => t(getOAuthKey("title")));
+const oauthFollowSteps = computed(() => t(getOAuthKey("followSteps")));
+const oauthStep1GenerateUrl = computed(() =>
+  t(getOAuthKey("step1GenerateUrl"))
+);
+const oauthGenerateAuthUrl = computed(() => t(getOAuthKey("generateAuthUrl")));
+const oauthStep2OpenUrl = computed(() => t(getOAuthKey("step2OpenUrl")));
+const oauthOpenUrlDesc = computed(() => t(getOAuthKey("openUrlDesc")));
+const oauthStep3EnterCode = computed(() => t(getOAuthKey("step3EnterCode")));
+const oauthAuthCodeDesc = computed(() => t(getOAuthKey("authCodeDesc")));
+const oauthAuthCode = computed(() => t(getOAuthKey("authCode")));
+const oauthAuthCodePlaceholder = computed(() =>
+  t(getOAuthKey("authCodePlaceholder"))
+);
+const oauthAuthCodeHint = computed(() => t(getOAuthKey("authCodeHint")));
 const oauthImportantNotice = computed(() => {
-  if (props.platform === 'openai') return t('admin.accounts.oauth.openai.importantNotice')
-  if (props.platform === 'antigravity') return t('admin.accounts.oauth.antigravity.importantNotice')
-  return ''
-})
+  if (props.platform === "openai")
+    return t("admin.accounts.oauth.openai.importantNotice");
+  if (props.platform === "antigravity")
+    return t("admin.accounts.oauth.antigravity.importantNotice");
+  return "";
+});
 
 // Local state
-const inputMethod = ref<AuthInputMethod>(props.showCookieOption ? 'manual' : 'manual')
-const authCodeInput = ref('')
-const sessionKeyInput = ref('')
-const refreshTokenInput = ref('')
-const showHelpDialog = ref(false)
-const oauthState = ref('')
-const projectId = ref('')
+const inputMethod = ref<AuthInputMethod>(
+  props.showCookieOption ? "manual" : "manual"
+);
+const authCodeInput = ref("");
+const sessionKeyInput = ref("");
+const refreshTokenInput = ref("");
+const showHelpDialog = ref(false);
+const oauthState = ref("");
+const projectId = ref("");
 
 // Computed: show method selection when either cookie or refresh token option is enabled
-const showMethodSelection = computed(() => props.showCookieOption || props.showRefreshTokenOption)
+const showMethodSelection = computed(
+  () => props.showCookieOption || props.showRefreshTokenOption
+);
 
 // Clipboard
-const { copied, copyToClipboard } = useClipboard()
+const { copied, copyToClipboard } = useClipboard();
 
 // Computed
 const parsedKeyCount = computed(() => {
   return sessionKeyInput.value
-    .split('\n')
+    .split("\n")
     .map((k) => k.trim())
-    .filter((k) => k).length
-})
+    .filter((k) => k).length;
+});
 
 // Computed: count of refresh tokens entered
 const parsedRefreshTokenCount = computed(() => {
   return refreshTokenInput.value
-    .split('\n')
+    .split("\n")
     .map((rt) => rt.trim())
-    .filter((rt) => rt).length
-})
+    .filter((rt) => rt).length;
+});
 
 // Watchers
 watch(inputMethod, (newVal) => {
-  emit('update:inputMethod', newVal)
-})
+  emit("update:inputMethod", newVal);
+});
 
 // Auto-extract code from callback URL (OpenAI/Gemini/Antigravity)
 // e.g., http://localhost:8085/callback?code=xxx...&state=...
 watch(authCodeInput, (newVal) => {
-  if (props.platform !== 'openai' && props.platform !== 'gemini' && props.platform !== 'antigravity') return
+  if (
+    props.platform !== "openai" &&
+    props.platform !== "gemini" &&
+    props.platform !== "antigravity"
+  )
+    return;
 
-  const trimmed = newVal.trim()
+  const trimmed = newVal.trim();
   // Check if it looks like a URL with code parameter
-  if (trimmed.includes('?') && trimmed.includes('code=')) {
+  if (trimmed.includes("?") && trimmed.includes("code=")) {
     try {
       // Try to parse as URL
-      const url = new URL(trimmed)
-      const code = url.searchParams.get('code')
-      const stateParam = url.searchParams.get('state')
-      if ((props.platform === 'gemini' || props.platform === 'antigravity') && stateParam) {
-        oauthState.value = stateParam
+      const url = new URL(trimmed);
+      const code = url.searchParams.get("code");
+      const stateParam = url.searchParams.get("state");
+      if (
+        (props.platform === "gemini" || props.platform === "antigravity") &&
+        stateParam
+      ) {
+        oauthState.value = stateParam;
       }
       if (code && code !== trimmed) {
         // Replace the input with just the code
-        authCodeInput.value = code
+        authCodeInput.value = code;
       }
     } catch {
       // If URL parsing fails, try regex extraction
-      const match = trimmed.match(/[?&]code=([^&]+)/)
-      const stateMatch = trimmed.match(/[?&]state=([^&]+)/)
-      if ((props.platform === 'gemini' || props.platform === 'antigravity') && stateMatch && stateMatch[1]) {
-        oauthState.value = stateMatch[1]
+      const match = trimmed.match(/[?&]code=([^&]+)/);
+      const stateMatch = trimmed.match(/[?&]state=([^&]+)/);
+      if (
+        (props.platform === "gemini" || props.platform === "antigravity") &&
+        stateMatch &&
+        stateMatch[1]
+      ) {
+        oauthState.value = stateMatch[1];
       }
       if (match && match[1] && match[1] !== trimmed) {
-        authCodeInput.value = match[1]
+        authCodeInput.value = match[1];
       }
     }
   }
-})
+});
 
 // Methods
 const handleGenerateUrl = () => {
-  emit('generate-url')
-}
+  emit("generate-url");
+};
 
 const handleCopyUrl = () => {
   if (props.authUrl) {
-    copyToClipboard(props.authUrl, 'URL copied to clipboard')
+    copyToClipboard(props.authUrl, "URL copied to clipboard");
   }
-}
+};
 
 const handleRegenerate = () => {
-  authCodeInput.value = ''
-  emit('generate-url')
-}
+  authCodeInput.value = "";
+  emit("generate-url");
+};
 
 const handleCookieAuth = () => {
   if (sessionKeyInput.value.trim()) {
-    emit('cookie-auth', sessionKeyInput.value)
+    emit("cookie-auth", sessionKeyInput.value);
   }
-}
+};
 
 const handleValidateRefreshToken = () => {
   if (refreshTokenInput.value.trim()) {
-    emit('validate-refresh-token', refreshTokenInput.value.trim())
+    emit("validate-refresh-token", refreshTokenInput.value.trim());
   }
-}
+};
 
 // Expose methods and state
 defineExpose({
@@ -688,13 +779,13 @@ defineExpose({
   refreshToken: refreshTokenInput,
   inputMethod,
   reset: () => {
-    authCodeInput.value = ''
-    oauthState.value = ''
-    projectId.value = ''
-    sessionKeyInput.value = ''
-    refreshTokenInput.value = ''
-    inputMethod.value = 'manual'
-    showHelpDialog.value = false
-  }
-})
+    authCodeInput.value = "";
+    oauthState.value = "";
+    projectId.value = "";
+    sessionKeyInput.value = "";
+    refreshTokenInput.value = "";
+    inputMethod.value = "manual";
+    showHelpDialog.value = false;
+  },
+});
 </script>

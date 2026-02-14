@@ -28,17 +28,18 @@ import (
 
 // GatewayHandler handles API gateway requests
 type GatewayHandler struct {
-	gatewayService            *service.GatewayService
-	geminiCompatService       *service.GeminiMessagesCompatService
-	antigravityGatewayService *service.AntigravityGatewayService
-	userService               *service.UserService
-	billingCacheService       *service.BillingCacheService
-	usageService              *service.UsageService
-	apiKeyService             *service.APIKeyService
-	errorPassthroughService   *service.ErrorPassthroughService
-	concurrencyHelper         *ConcurrencyHelper
-	maxAccountSwitches        int
-	maxAccountSwitchesGemini  int
+	gatewayService             *service.GatewayService
+	geminiCompatService        *service.GeminiMessagesCompatService
+	antigravityGatewayService  *service.AntigravityGatewayService
+	openAICompatGatewayService *service.OpenAICompatGatewayService
+	userService                *service.UserService
+	billingCacheService        *service.BillingCacheService
+	usageService               *service.UsageService
+	apiKeyService              *service.APIKeyService
+	errorPassthroughService    *service.ErrorPassthroughService
+	concurrencyHelper          *ConcurrencyHelper
+	maxAccountSwitches         int
+	maxAccountSwitchesGemini   int
 }
 
 // NewGatewayHandler creates a new GatewayHandler
@@ -46,6 +47,7 @@ func NewGatewayHandler(
 	gatewayService *service.GatewayService,
 	geminiCompatService *service.GeminiMessagesCompatService,
 	antigravityGatewayService *service.AntigravityGatewayService,
+	openAICompatGatewayService *service.OpenAICompatGatewayService,
 	userService *service.UserService,
 	concurrencyService *service.ConcurrencyService,
 	billingCacheService *service.BillingCacheService,
@@ -67,17 +69,18 @@ func NewGatewayHandler(
 		}
 	}
 	return &GatewayHandler{
-		gatewayService:            gatewayService,
-		geminiCompatService:       geminiCompatService,
-		antigravityGatewayService: antigravityGatewayService,
-		userService:               userService,
-		billingCacheService:       billingCacheService,
-		usageService:              usageService,
-		apiKeyService:             apiKeyService,
-		errorPassthroughService:   errorPassthroughService,
-		concurrencyHelper:         NewConcurrencyHelper(concurrencyService, SSEPingFormatClaude, pingInterval),
-		maxAccountSwitches:        maxAccountSwitches,
-		maxAccountSwitchesGemini:  maxAccountSwitchesGemini,
+		gatewayService:             gatewayService,
+		geminiCompatService:        geminiCompatService,
+		antigravityGatewayService:  antigravityGatewayService,
+		openAICompatGatewayService: openAICompatGatewayService,
+		userService:                userService,
+		billingCacheService:        billingCacheService,
+		usageService:               usageService,
+		apiKeyService:              apiKeyService,
+		errorPassthroughService:    errorPassthroughService,
+		concurrencyHelper:          NewConcurrencyHelper(concurrencyService, SSEPingFormatClaude, pingInterval),
+		maxAccountSwitches:         maxAccountSwitches,
+		maxAccountSwitchesGemini:   maxAccountSwitchesGemini,
 	}
 }
 
@@ -554,6 +557,8 @@ func (h *GatewayHandler) Messages(c *gin.Context) {
 			}
 			if account.Platform == service.PlatformAntigravity && account.Type != service.AccountTypeAPIKey {
 				result, err = h.antigravityGatewayService.Forward(requestCtx, c, account, body, hasBoundSession)
+			} else if account.Platform == service.PlatformOpenAICompat || account.Platform == service.PlatformOpenRouter {
+				result, err = h.openAICompatGatewayService.Forward(requestCtx, c, account, body)
 			} else {
 				result, err = h.gatewayService.Forward(requestCtx, c, account, parsedReq)
 			}

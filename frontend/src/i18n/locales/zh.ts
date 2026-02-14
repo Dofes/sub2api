@@ -1162,7 +1162,9 @@ export default {
         anthropic: 'Anthropic',
         openai: 'OpenAI',
         gemini: 'Gemini',
-        antigravity: 'Antigravity'
+        antigravity: 'Antigravity',
+        openai_compat: 'OpenAI 兼容',
+        openrouter: 'OpenAI 兼容'
       },
       saving: '保存中...',
       noGroups: '暂无分组',
@@ -1485,7 +1487,9 @@ export default {
         openai: 'OpenAI',
         anthropic: 'Anthropic',
         gemini: 'Gemini',
-        antigravity: 'Antigravity'
+        antigravity: 'Antigravity',
+        openai_compat: 'OpenAI 兼容',
+        openrouter: 'OpenAI 兼容'
       },
       types: {
         oauth: 'OAuth',
@@ -1778,6 +1782,20 @@ export default {
         apiKeyHint: '上游服务的 API Key',
         pleaseEnterBaseUrl: '请输入上游 Base URL',
         pleaseEnterApiKey: '请输入上游 API Key'
+      },
+      openai_compat: {
+        baseUrlHint: 'OpenAI 兼容 API 地址（系统会自动追加 /chat/completions），例如 https://api.deepseek.com 或 https://open.bigmodel.cn/api/paas/v4',
+        apiKeyHint: '您的 API Key',
+        pleaseEnterBaseUrl: '请输入 Base URL',
+        pleaseEnterApiKey: '请输入 API Key',
+        modelMappingHint: '将 Claude 模型名映射到上游的模型。例如：claude-sonnet-4-20250514 → anthropic/claude-sonnet-4'
+      },
+      openrouter: {
+        baseUrlHint: 'OpenAI 兼容 API 地址（系统会自动追加 /chat/completions），例如 https://api.deepseek.com 或 https://open.bigmodel.cn/api/paas/v4',
+        apiKeyHint: '您的 API Key',
+        pleaseEnterBaseUrl: '请输入 Base URL',
+        pleaseEnterApiKey: '请输入 API Key',
+        modelMappingHint: '将 Claude 模型名映射到上游的模型。例如：claude-sonnet-4-20250514 → anthropic/claude-sonnet-4'
       },
       // OAuth flow
       oauth: {

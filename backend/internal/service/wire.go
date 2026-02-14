@@ -244,6 +244,7 @@ var ProviderSet = wire.NewSet(
 	NewOpenAITokenProvider,
 	NewClaudeTokenProvider,
 	NewAntigravityGatewayService,
+	NewOpenAICompatGatewayService,
 	ProvideRateLimitService,
 	NewAccountUsageService,
 	NewAccountTestService,

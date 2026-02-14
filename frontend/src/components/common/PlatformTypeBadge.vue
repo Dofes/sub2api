@@ -1,5 +1,7 @@
 <template>
-  <div class="inline-flex items-center overflow-hidden rounded-md text-xs font-medium">
+  <div
+    class="inline-flex items-center overflow-hidden rounded-md text-xs font-medium"
+  >
     <!-- Platform part -->
     <span :class="['inline-flex items-center gap-1 px-2 py-1', platformClass]">
       <PlatformIcon :platform="platform" size="xs" />
@@ -32,61 +34,69 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { AccountPlatform, AccountType } from '@/types'
-import PlatformIcon from './PlatformIcon.vue'
-import Icon from '@/components/icons/Icon.vue'
+import { computed } from "vue";
+import type { AccountPlatform, AccountType } from "@/types";
+import PlatformIcon from "./PlatformIcon.vue";
+import Icon from "@/components/icons/Icon.vue";
 
 interface Props {
-  platform: AccountPlatform
-  type: AccountType
+  platform: AccountPlatform;
+  type: AccountType;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 const platformLabel = computed(() => {
-  if (props.platform === 'anthropic') return 'Anthropic'
-  if (props.platform === 'openai') return 'OpenAI'
-  if (props.platform === 'antigravity') return 'Antigravity'
-  return 'Gemini'
-})
+  if (props.platform === "anthropic") return "Anthropic";
+  if (props.platform === "openai") return "OpenAI";
+  if (props.platform === "antigravity") return "Antigravity";
+  if (props.platform === "openai_compat" || props.platform === "openrouter")
+    return "OpenAI Compat";
+  return "Gemini";
+});
 
 const typeLabel = computed(() => {
   switch (props.type) {
-    case 'oauth':
-      return 'OAuth'
-    case 'setup-token':
-      return 'Token'
-    case 'apikey':
-      return 'Key'
+    case "oauth":
+      return "OAuth";
+    case "setup-token":
+      return "Token";
+    case "apikey":
+      return "Key";
     default:
-      return props.type
+      return props.type;
   }
-})
+});
 
 const platformClass = computed(() => {
-  if (props.platform === 'anthropic') {
-    return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+  if (props.platform === "anthropic") {
+    return "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400";
   }
-  if (props.platform === 'openai') {
-    return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+  if (props.platform === "openai") {
+    return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400";
   }
-  if (props.platform === 'antigravity') {
-    return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+  if (props.platform === "antigravity") {
+    return "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400";
   }
-  return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-})
+  if (props.platform === "openai_compat" || props.platform === "openrouter") {
+    return "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400";
+  }
+  return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+});
 
 const typeClass = computed(() => {
-  if (props.platform === 'anthropic') {
-    return 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
+  if (props.platform === "anthropic") {
+    return "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400";
   }
-  if (props.platform === 'openai') {
-    return 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+  if (props.platform === "openai") {
+    return "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400";
   }
-  if (props.platform === 'antigravity') {
-    return 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
+  if (props.platform === "antigravity") {
+    return "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
   }
-  return 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
-})
+  if (props.platform === "openai_compat" || props.platform === "openrouter") {
+    return "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400";
+  }
+  return "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
+});
 </script>

@@ -1104,7 +1104,9 @@ export default {
         anthropic: 'Anthropic',
         openai: 'OpenAI',
         gemini: 'Gemini',
-        antigravity: 'Antigravity'
+        antigravity: 'Antigravity',
+        openai_compat: 'OpenAI Compatible',
+        openrouter: 'OpenAI Compatible'
       },
       deleteConfirm:
         "Are you sure you want to delete '{name}'? All associated API keys will no longer belong to any group.",
@@ -1351,7 +1353,9 @@ export default {
         claude: 'Claude',
         openai: 'OpenAI',
         gemini: 'Gemini',
-        antigravity: 'Antigravity'
+        antigravity: 'Antigravity',
+        openai_compat: 'OpenAI Compatible',
+        openrouter: 'OpenAI Compatible'
       },
       types: {
         oauth: 'OAuth',
@@ -1632,6 +1636,20 @@ export default {
         apiKeyHint: 'API Key for the upstream service',
         pleaseEnterBaseUrl: 'Please enter upstream Base URL',
         pleaseEnterApiKey: 'Please enter upstream API Key'
+      },
+      openai_compat: {
+        baseUrlHint: 'OpenAI-compatible API base URL (/chat/completions will be appended automatically), e.g. https://api.deepseek.com or https://open.bigmodel.cn/api/paas/v4',
+        apiKeyHint: 'Your API Key',
+        pleaseEnterBaseUrl: 'Please enter Base URL',
+        pleaseEnterApiKey: 'Please enter API Key',
+        modelMappingHint: 'Map Claude model names to upstream models. e.g., claude-sonnet-4-20250514 → anthropic/claude-sonnet-4'
+      },
+      openrouter: {
+        baseUrlHint: 'OpenAI-compatible API base URL (/chat/completions will be appended automatically), e.g. https://api.deepseek.com or https://open.bigmodel.cn/api/paas/v4',
+        apiKeyHint: 'Your API Key',
+        pleaseEnterBaseUrl: 'Please enter Base URL',
+        pleaseEnterApiKey: 'Please enter API Key',
+        modelMappingHint: 'Map Claude model names to upstream models. e.g., claude-sonnet-4-20250514 → anthropic/claude-sonnet-4'
       },
       // OAuth flow
       oauth: {

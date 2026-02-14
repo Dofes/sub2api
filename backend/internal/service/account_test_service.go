@@ -44,11 +44,12 @@ type TestEvent struct {
 
 // AccountTestService handles account testing operations
 type AccountTestService struct {
-	accountRepo               AccountRepository
-	geminiTokenProvider       *GeminiTokenProvider
-	antigravityGatewayService *AntigravityGatewayService
-	httpUpstream              HTTPUpstream
-	cfg                       *config.Config
+	accountRepo                AccountRepository
+	geminiTokenProvider        *GeminiTokenProvider
+	antigravityGatewayService  *AntigravityGatewayService
+	openAICompatGatewayService *OpenAICompatGatewayService
+	httpUpstream               HTTPUpstream
+	cfg                        *config.Config
 }
 
 // NewAccountTestService creates a new AccountTestService
@@ -56,15 +57,17 @@ func NewAccountTestService(
 	accountRepo AccountRepository,
 	geminiTokenProvider *GeminiTokenProvider,
 	antigravityGatewayService *AntigravityGatewayService,
+	openAICompatGatewayService *OpenAICompatGatewayService,
 	httpUpstream HTTPUpstream,
 	cfg *config.Config,
 ) *AccountTestService {
 	return &AccountTestService{
-		accountRepo:               accountRepo,
-		geminiTokenProvider:       geminiTokenProvider,
-		antigravityGatewayService: antigravityGatewayService,
-		httpUpstream:              httpUpstream,
-		cfg:                       cfg,
+		accountRepo:                accountRepo,
+		geminiTokenProvider:        geminiTokenProvider,
+		antigravityGatewayService:  antigravityGatewayService,
+		openAICompatGatewayService: openAICompatGatewayService,
+		httpUpstream:               httpUpstream,
+		cfg:                        cfg,
 	}
 }
 
@@ -161,6 +164,10 @@ func (s *AccountTestService) TestAccountConnection(c *gin.Context, accountID int
 
 	if account.Platform == PlatformAntigravity {
 		return s.testAntigravityAccountConnection(c, account, modelID)
+	}
+
+	if account.Platform == PlatformOpenAICompat || account.Platform == PlatformOpenRouter {
+		return s.testOpenAICompatAccountConnection(c, account, modelID)
 	}
 
 	return s.testClaudeAccountConnection(c, account, modelID)
@@ -494,6 +501,42 @@ func (s *AccountTestService) testAntigravityAccountConnection(c *gin.Context, ac
 	}
 
 	// 发送响应内容
+	if result.Text != "" {
+		s.sendEvent(c, TestEvent{Type: "content", Text: result.Text})
+	}
+
+	s.sendEvent(c, TestEvent{Type: "test_complete", Success: true})
+	return nil
+}
+
+// testOpenAICompatAccountConnection tests an OpenAI-compatible account's connection
+func (s *AccountTestService) testOpenAICompatAccountConnection(c *gin.Context, account *Account, modelID string) error {
+	ctx := c.Request.Context()
+
+	testModelID := modelID
+	if testModelID == "" {
+		testModelID = "anthropic/claude-sonnet-4"
+	}
+
+	if s.openAICompatGatewayService == nil {
+		return s.sendErrorAndEnd(c, "OpenAI-compatible gateway service not configured")
+	}
+
+	// Set SSE headers
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
+	c.Writer.Header().Set("Cache-Control", "no-cache")
+	c.Writer.Header().Set("Connection", "keep-alive")
+	c.Writer.Header().Set("X-Accel-Buffering", "no")
+	c.Writer.Flush()
+
+	// Send test_start event
+	s.sendEvent(c, TestEvent{Type: "test_start", Model: testModelID})
+
+	result, err := s.openAICompatGatewayService.TestConnection(ctx, account, testModelID)
+	if err != nil {
+		return s.sendErrorAndEnd(c, err.Error())
+	}
+
 	if result.Text != "" {
 		s.sendEvent(c, TestEvent{Type: "content", Text: result.Text})
 	}

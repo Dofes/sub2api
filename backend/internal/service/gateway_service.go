@@ -2553,7 +2553,8 @@ func (s *GatewayService) isModelSupportedByAccount(account *Account, requestedMo
 	if account.Platform == PlatformGemini && account.Type == AccountTypeAPIKey {
 		return true
 	}
-	// 其他平台使用账户的模型支持检查
+	// 所有平台/类型统一使用 model_mapping 检查（含 OAuth 账号）
+	// 如果未配置 model_mapping，IsModelSupported 返回 true（允许所有模型）
 	return account.IsModelSupported(requestedModel)
 }
 
