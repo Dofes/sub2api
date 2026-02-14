@@ -1891,6 +1891,7 @@ watch(
           modelRestrictionMode.value = "whitelist";
           modelMappings.value = [];
           allowedModels.value = [];
+        }
         customErrorCodesEnabled.value = false;
         selectedErrorCodes.value = [];
       }
