@@ -1635,7 +1635,7 @@ func (s *GatewayService) listSchedulableAccounts(ctx context.Context, groupID *i
 	}
 	useMixed := (platform == PlatformAnthropic || platform == PlatformGemini) && !hasForcePlatform
 	if useMixed {
-		platforms := []string{platform, PlatformAntigravity}
+		platforms := []string{platform, PlatformAntigravity, PlatformOpenAICompat, PlatformOpenRouter, PlatformGLM}
 		var accounts []Account
 		var err error
 		if groupID != nil {
@@ -1652,7 +1652,7 @@ func (s *GatewayService) listSchedulableAccounts(ctx context.Context, groupID *i
 		}
 		filtered := make([]Account, 0, len(accounts))
 		for _, acc := range accounts {
-			if acc.Platform == PlatformAntigravity && !acc.IsMixedSchedulingEnabled() {
+			if acc.Platform != platform && !acc.IsMixedSchedulingEnabled() {
 				continue
 			}
 			filtered = append(filtered, acc)
@@ -1726,7 +1726,10 @@ func (s *GatewayService) isAccountAllowedForPlatform(account *Account, platform 
 		if account.Platform == platform {
 			return true
 		}
-		return account.Platform == PlatformAntigravity && account.IsMixedSchedulingEnabled()
+		if account.IsMixedSchedulingEnabled() {
+			return true
+		}
+		return false
 	}
 	return account.Platform == platform
 }
@@ -1756,11 +1759,11 @@ func (s *GatewayService) tryAcquireAccountSlot(ctx context.Context, accountID in
 }
 
 // isAccountSchedulableForWindowCost 检查账号是否可根据窗口费用进行调度
-// 仅适用于 Anthropic OAuth/SetupToken 账号
+// 适用于支持配额控制的账号（Anthropic OAuth/SetupToken、GLM APIKey）
 // 返回 true 表示可调度，false 表示不可调度
 func (s *GatewayService) isAccountSchedulableForWindowCost(ctx context.Context, account *Account, isSticky bool) bool {
-	// 只检查 Anthropic OAuth/SetupToken 账号
-	if !account.IsAnthropicOAuthOrSetupToken() {
+	// 只检查支持配额控制的账号
+	if !account.SupportsQuotaControl() {
 		return true
 	}
 
@@ -2329,7 +2332,7 @@ func (s *GatewayService) selectAccountWithMixedScheduling(ctx context.Context, g
 							_ = s.cache.DeleteSessionAccountID(ctx, derefGroupID(groupID), sessionHash)
 						}
 						if !clearSticky && s.isAccountInGroup(account, groupID) && (requestedModel == "" || s.isModelSupportedByAccountWithContext(ctx, account, requestedModel)) && account.IsSchedulableForModelWithContext(ctx, requestedModel) {
-							if account.Platform == nativePlatform || (account.Platform == PlatformAntigravity && account.IsMixedSchedulingEnabled()) {
+							if account.Platform == nativePlatform || account.IsMixedSchedulingEnabled() {
 								if s.debugModelRoutingEnabled() {
 									log.Printf("[ModelRoutingDebug] legacy mixed routed sticky hit: group_id=%v model=%s session=%s account=%d", derefGroupID(groupID), requestedModel, shortSessionHash(sessionHash), accountID)
 								}
@@ -2370,8 +2373,8 @@ func (s *GatewayService) selectAccountWithMixedScheduling(ctx context.Context, g
 			if !acc.IsSchedulable() {
 				continue
 			}
-			// 过滤：原生平台直接通过，antigravity 需要启用混合调度
-			if acc.Platform == PlatformAntigravity && !acc.IsMixedSchedulingEnabled() {
+			// 过滤：原生平台直接通过，其他平台需要启用混合调度
+			if acc.Platform != nativePlatform && !acc.IsMixedSchedulingEnabled() {
 				continue
 			}
 			if requestedModel != "" && !s.isModelSupportedByAccountWithContext(ctx, acc, requestedModel) {
@@ -2431,7 +2434,7 @@ func (s *GatewayService) selectAccountWithMixedScheduling(ctx context.Context, g
 						_ = s.cache.DeleteSessionAccountID(ctx, derefGroupID(groupID), sessionHash)
 					}
 					if !clearSticky && s.isAccountInGroup(account, groupID) && (requestedModel == "" || s.isModelSupportedByAccountWithContext(ctx, account, requestedModel)) && account.IsSchedulableForModelWithContext(ctx, requestedModel) {
-						if account.Platform == nativePlatform || (account.Platform == PlatformAntigravity && account.IsMixedSchedulingEnabled()) {
+						if account.Platform == nativePlatform || account.IsMixedSchedulingEnabled() {
 							return account, nil
 						}
 					}
@@ -2461,8 +2464,8 @@ func (s *GatewayService) selectAccountWithMixedScheduling(ctx context.Context, g
 		if !acc.IsSchedulable() {
 			continue
 		}
-		// 过滤：原生平台直接通过，antigravity 需要启用混合调度
-		if acc.Platform == PlatformAntigravity && !acc.IsMixedSchedulingEnabled() {
+		// 过滤：原生平台直接通过，其他平台需要启用混合调度
+		if acc.Platform != nativePlatform && !acc.IsMixedSchedulingEnabled() {
 			continue
 		}
 		if requestedModel != "" && !s.isModelSupportedByAccountWithContext(ctx, acc, requestedModel) {
@@ -3511,6 +3514,9 @@ func (s *GatewayService) buildUpstreamRequest(ctx context.Context, c *gin.Contex
 	// 设置认证头
 	if tokenType == "oauth" {
 		req.Header.Set("authorization", "Bearer "+token)
+	} else if account.Platform == PlatformGLM {
+		// GLM 使用 Authorization header（无 Bearer 前缀）
+		req.Header.Set("authorization", token)
 	} else {
 		req.Header.Set("x-api-key", token)
 	}
@@ -5098,6 +5104,9 @@ func (s *GatewayService) buildCountTokensRequest(ctx context.Context, c *gin.Con
 	// 设置认证头
 	if tokenType == "oauth" {
 		req.Header.Set("authorization", "Bearer "+token)
+	} else if account.Platform == PlatformGLM {
+		// GLM 使用 Authorization header（无 Bearer 前缀）
+		req.Header.Set("authorization", token)
 	} else {
 		req.Header.Set("x-api-key", token)
 	}

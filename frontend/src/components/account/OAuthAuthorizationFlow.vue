@@ -592,7 +592,8 @@ interface Props {
     | "gemini"
     | "antigravity"
     | "openai_compat"
-    | "openrouter"; // Platform type for different UI/text
+    | "openrouter"
+    | "glm"; // Platform type for different UI/text
   showProjectId?: boolean; // New prop to control project ID visibility
 }
 

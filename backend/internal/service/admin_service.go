@@ -1752,6 +1752,8 @@ func (s *adminServiceImpl) saveProxyLatency(ctx context.Context, proxyID int64, 
 }
 
 // getAccountPlatform 根据账号 platform 判断混合渠道检查用的平台标识
+// 仅检查 Antigravity 和 Anthropic 之间的冲突（上下文签名不兼容）
+// openai_compat/openrouter 不存在此问题，不参与此检查
 func getAccountPlatform(accountPlatform string) string {
 	switch strings.ToLower(strings.TrimSpace(accountPlatform)) {
 	case PlatformAntigravity:

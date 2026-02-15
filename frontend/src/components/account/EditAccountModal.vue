@@ -1172,11 +1172,12 @@
         </div>
       </div>
 
-      <!-- Quota Control Section (Anthropic OAuth/SetupToken only) -->
+      <!-- Quota Control Section (Anthropic OAuth/SetupToken and GLM APIKey) -->
       <div
         v-if="
-          account?.platform === 'anthropic' &&
-          (account?.type === 'oauth' || account?.type === 'setup-token')
+          (account?.platform === 'anthropic' &&
+            (account?.type === 'oauth' || account?.type === 'setup-token')) ||
+          (account?.platform === 'glm' && account?.type === 'apikey')
         "
         class="border-t border-gray-200 pt-4 dark:border-dark-600 space-y-4"
       >
@@ -1428,17 +1429,34 @@
           <Select v-model="form.status" :options="statusOptions" />
         </div>
 
-        <!-- Mixed Scheduling (only for antigravity accounts, read-only in edit mode) -->
+        <!-- Mixed Scheduling (for antigravity, openai_compat, openrouter, glm accounts) -->
         <div
-          v-if="account?.platform === 'antigravity'"
+          v-if="
+            account?.platform === 'antigravity' ||
+            account?.platform === 'openai_compat' ||
+            account?.platform === 'openrouter' ||
+            account?.platform === 'glm'
+          "
           class="flex items-center gap-2"
         >
-          <label class="flex cursor-not-allowed items-center gap-2 opacity-60">
+          <label
+            :class="[
+              'flex items-center gap-2',
+              account?.platform === 'antigravity'
+                ? 'cursor-not-allowed opacity-60'
+                : 'cursor-pointer',
+            ]"
+          >
             <input
               type="checkbox"
               v-model="mixedScheduling"
-              disabled
-              class="h-4 w-4 cursor-not-allowed rounded border-gray-300 text-primary-500 focus:ring-primary-500 dark:border-dark-500"
+              :disabled="account?.platform === 'antigravity'"
+              :class="[
+                'h-4 w-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500 dark:border-dark-500',
+                account?.platform === 'antigravity'
+                  ? 'cursor-not-allowed'
+                  : 'cursor-pointer',
+              ]"
             />
             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ t("admin.accounts.mixedScheduling") }}
@@ -1615,7 +1633,7 @@ const selectedErrorCodes = ref<number[]>([]);
 const customErrorCodeInput = ref<number | null>(null);
 const interceptWarmupRequests = ref(false);
 const autoPauseOnExpired = ref(false);
-const mixedScheduling = ref(false); // For antigravity accounts: enable mixed scheduling
+const mixedScheduling = ref(false); // For antigravity/openai_compat/openrouter accounts: enable mixed scheduling
 const antigravityModelRestrictionMode = ref<"whitelist" | "mapping">(
   "whitelist"
 );
@@ -1735,7 +1753,7 @@ watch(
         credentials?.intercept_warmup_requests === true;
       autoPauseOnExpired.value = newAccount.auto_pause_on_expired === true;
 
-      // Load mixed scheduling setting (only for antigravity accounts)
+      // Load mixed scheduling setting (for antigravity/openai_compat/openrouter accounts)
       const extra = newAccount.extra as Record<string, unknown> | undefined;
       mixedScheduling.value = extra?.mixed_scheduling === true;
 
@@ -1810,6 +1828,8 @@ watch(
             ? "https://api.openai.com"
             : newAccount.platform === "gemini"
             ? "https://generativelanguage.googleapis.com"
+            : newAccount.platform === "glm"
+            ? "https://open.bigmodel.cn/api/anthropic"
             : "https://api.anthropic.com";
         editBaseUrl.value =
           (credentials.base_url as string) || platformDefaultUrl;
@@ -1863,6 +1883,8 @@ watch(
             ? "https://api.openai.com"
             : newAccount.platform === "gemini"
             ? "https://generativelanguage.googleapis.com"
+            : newAccount.platform === "glm"
+            ? "https://open.bigmodel.cn/api/anthropic"
             : "https://api.anthropic.com";
         editBaseUrl.value = platformDefaultUrl;
 
@@ -2097,10 +2119,13 @@ function loadQuotaControlSettings(account: Account) {
   tlsFingerprintEnabled.value = false;
   sessionIdMaskingEnabled.value = false;
 
-  // Only applies to Anthropic OAuth/SetupToken accounts
+  // Only applies to Anthropic OAuth/SetupToken and GLM APIKey accounts
   if (
-    account.platform !== "anthropic" ||
-    (account.type !== "oauth" && account.type !== "setup-token")
+    !(
+      account.platform === "anthropic" &&
+      (account.type === "oauth" || account.type === "setup-token")
+    ) &&
+    !(account.platform === "glm" && account.type === "apikey")
   ) {
     return;
   }
@@ -2337,8 +2362,13 @@ const handleSubmit = async () => {
       updatePayload.credentials = newCredentials;
     }
 
-    // For antigravity accounts, handle mixed_scheduling in extra
-    if (props.account.platform === "antigravity") {
+    // For antigravity/openai_compat/openrouter/glm accounts, handle mixed_scheduling in extra
+    if (
+      props.account.platform === "antigravity" ||
+      props.account.platform === "openai_compat" ||
+      props.account.platform === "openrouter" ||
+      props.account.platform === "glm"
+    ) {
       const currentExtra =
         (props.account.extra as Record<string, unknown>) || {};
       const newExtra: Record<string, unknown> = { ...currentExtra };
@@ -2350,13 +2380,17 @@ const handleSubmit = async () => {
       updatePayload.extra = newExtra;
     }
 
-    // For Anthropic OAuth/SetupToken accounts, handle quota control settings in extra
+    // For Anthropic OAuth/SetupToken and GLM APIKey accounts, handle quota control settings in extra
     if (
-      props.account.platform === "anthropic" &&
-      (props.account.type === "oauth" || props.account.type === "setup-token")
+      (props.account.platform === "anthropic" &&
+        (props.account.type === "oauth" ||
+          props.account.type === "setup-token")) ||
+      (props.account.platform === "glm" && props.account.type === "apikey")
     ) {
       const currentExtra =
-        (props.account.extra as Record<string, unknown>) || {};
+        (updatePayload.extra as Record<string, unknown>) ||
+        (props.account.extra as Record<string, unknown>) ||
+        {};
       const newExtra: Record<string, unknown> = { ...currentExtra };
 
       // Window cost limit settings

@@ -24,6 +24,7 @@ const (
 	PlatformAntigravity  = "antigravity"
 	PlatformOpenAICompat = "openai_compat" // 任何 OpenAI Chat Completions 兼容 API
 	PlatformOpenRouter   = "openrouter"    // 向后兼容旧数据，等同于 openai_compat
+	PlatformGLM          = "glm"           // 智谱 GLM Coding Plan（原生 Anthropic 协议）
 )
 
 // Account type constants

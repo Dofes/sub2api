@@ -181,6 +181,31 @@
             </svg>
             OpenAI Compatible
           </button>
+          <button
+            type="button"
+            @click="form.platform = 'glm'"
+            :class="[
+              'flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all',
+              form.platform === 'glm'
+                ? 'bg-white text-teal-600 shadow-sm dark:bg-dark-600 dark:text-teal-400'
+                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200',
+            ]"
+          >
+            <svg
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
+              />
+            </svg>
+            GLM
+          </button>
         </div>
       </div>
 
@@ -1037,6 +1062,90 @@
         </div>
       </div>
 
+      <!-- GLM config (base_url + api_key) -->
+      <div v-if="form.platform === 'glm'" class="space-y-4">
+        <div>
+          <label class="input-label">Base URL</label>
+          <input
+            v-model="glmBaseUrl"
+            type="text"
+            class="input"
+            placeholder="https://open.bigmodel.cn/api/anthropic"
+          />
+          <p class="input-hint">
+            GLM Coding Plan 的 Anthropic 兼容 API 地址，留空使用默认值
+          </p>
+        </div>
+        <div>
+          <label class="input-label">API Key</label>
+          <input
+            v-model="glmApiKey"
+            type="password"
+            required
+            class="input font-mono"
+            placeholder="ANTHROPIC_AUTH_TOKEN"
+          />
+          <p class="input-hint">
+            GLM Coding Plan 的认证令牌（即 ANTHROPIC_AUTH_TOKEN）
+          </p>
+        </div>
+      </div>
+
+      <!-- GLM model mapping -->
+      <div
+        v-if="form.platform === 'glm'"
+        class="border-t border-gray-200 pt-4 dark:border-dark-600"
+      >
+        <label class="input-label">{{
+          t("admin.accounts.modelRestriction")
+        }}</label>
+        <div>
+          <div class="mb-3 rounded-lg bg-teal-50 p-3 dark:bg-teal-900/20">
+            <p class="text-xs text-teal-700 dark:text-teal-400">
+              将 Claude 模型名映射到 GLM
+              上游的模型。例如：claude-haiku-3-5-20241022 →
+              claude-haiku-3-5-20241022
+            </p>
+          </div>
+
+          <div v-if="glmModelMappings.length > 0" class="mb-3 space-y-2">
+            <div
+              v-for="(mapping, index) in glmModelMappings"
+              :key="index"
+              class="flex items-center gap-2"
+            >
+              <input
+                v-model="mapping.from"
+                type="text"
+                class="input flex-1"
+                :placeholder="t('admin.accounts.modelMappingFrom')"
+              />
+              <span class="text-gray-400">→</span>
+              <input
+                v-model="mapping.to"
+                type="text"
+                class="input flex-1"
+                :placeholder="t('admin.accounts.modelMappingTo')"
+              />
+              <button
+                type="button"
+                @click="glmModelMappings.splice(index, 1)"
+                class="rounded p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+              >
+                <Icon name="x" size="sm" />
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            @click="glmModelMappings.push({ from: '', to: '' })"
+            class="text-sm text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300"
+          >
+            + {{ t("admin.accounts.addModelMapping") }}
+          </button>
+        </div>
+      </div>
+
       <!-- Add Method (only for Anthropic OAuth-based type) -->
       <div v-if="form.platform === 'anthropic' && isOAuthFlow">
         <label class="input-label">{{ t("admin.accounts.addMethod") }}</label>
@@ -1066,12 +1175,13 @@
         </div>
       </div>
 
-      <!-- API Key input (only for apikey type, excluding Antigravity/OpenAI Compatible which have their own fields) -->
+      <!-- API Key input (only for apikey type, excluding Antigravity/OpenAI Compatible/GLM which have their own fields) -->
       <div
         v-if="
           form.type === 'apikey' &&
           form.platform !== 'antigravity' &&
-          form.platform !== 'openai_compat'
+          form.platform !== 'openai_compat' &&
+          form.platform !== 'glm'
         "
         class="space-y-4"
       >
@@ -2179,9 +2289,14 @@
       </div>
 
       <div class="border-t border-gray-200 pt-4 dark:border-dark-600">
-        <!-- Mixed Scheduling (only for antigravity accounts) -->
+        <!-- Mixed Scheduling (for antigravity, openai_compat, openrouter, glm accounts) -->
         <div
-          v-if="form.platform === 'antigravity'"
+          v-if="
+            form.platform === 'antigravity' ||
+            form.platform === 'openai_compat' ||
+            form.platform === 'openrouter' ||
+            form.platform === 'glm'
+          "
           class="flex items-center gap-2"
         >
           <label class="flex cursor-pointer items-center gap-2">
@@ -2798,7 +2913,7 @@ const selectedErrorCodes = ref<number[]>([]);
 const customErrorCodeInput = ref<number | null>(null);
 const interceptWarmupRequests = ref(false);
 const autoPauseOnExpired = ref(true);
-const mixedScheduling = ref(false); // For antigravity accounts: enable mixed scheduling
+const mixedScheduling = ref(false); // For antigravity/openai_compat/openrouter accounts: enable mixed scheduling
 const antigravityAccountType = ref<"oauth" | "upstream">("oauth"); // For antigravity: oauth or upstream
 const upstreamBaseUrl = ref(""); // For upstream type: base URL
 const upstreamApiKey = ref(""); // For upstream type: API key
@@ -2813,6 +2928,9 @@ const antigravityPresetMappings = computed(() =>
 const openrouterBaseUrl = ref("");
 const openrouterApiKey = ref("");
 const openrouterModelMappings = ref<ModelMapping[]>([]);
+const glmBaseUrl = ref("");
+const glmApiKey = ref("");
+const glmModelMappings = ref<ModelMapping[]>([]);
 const tempUnschedEnabled = ref(false);
 const tempUnschedRules = ref<TempUnschedRuleForm[]>([]);
 const geminiOAuthType = ref<"code_assist" | "google_one" | "ai_studio">(
@@ -2938,8 +3056,8 @@ const isOAuthFlow = computed(() => {
   ) {
     return false;
   }
-  // OpenAI Compatible 只有 API Key 模式，不需要 OAuth
-  if (form.platform === "openai_compat") {
+  // OpenAI Compatible / GLM 只有 API Key 模式，不需要 OAuth
+  if (form.platform === "openai_compat" || form.platform === "glm") {
     return false;
   }
   return accountCategory.value === "oauth-based";
@@ -3062,6 +3180,19 @@ watch(
     openaiOAuth.resetState();
     geminiOAuth.resetState();
     antigravityOAuth.resetState();
+    // Reset GLM / OpenAI Compat fields when switching away
+    if (newPlatform !== "glm") {
+      glmBaseUrl.value = "";
+      glmApiKey.value = "";
+      glmModelMappings.value = [];
+    }
+    if (newPlatform !== "openai_compat") {
+      openrouterBaseUrl.value = "";
+      openrouterApiKey.value = "";
+      openrouterModelMappings.value = [];
+    }
+    // Reset mixed scheduling
+    mixedScheduling.value = false;
   }
 );
 
@@ -3443,7 +3574,58 @@ const handleSubmit = async () => {
 
     submitting.value = true;
     try {
-      await createAccountAndFinish("openai_compat", "apikey", credentials);
+      const extra = mixedScheduling.value
+        ? { mixed_scheduling: true }
+        : undefined;
+      await createAccountAndFinish(
+        "openai_compat",
+        "apikey",
+        credentials,
+        extra
+      );
+    } catch (error: any) {
+      appStore.showError(
+        error.response?.data?.detail || t("admin.accounts.failedToCreate")
+      );
+    } finally {
+      submitting.value = false;
+    }
+    return;
+  }
+
+  // For GLM, create directly with base_url + api_key (native Anthropic protocol)
+  if (form.platform === "glm") {
+    if (!form.name.trim()) {
+      appStore.showError(t("admin.accounts.pleaseEnterAccountName"));
+      return;
+    }
+    if (!glmApiKey.value.trim()) {
+      appStore.showError("请输入 GLM API Key（ANTHROPIC_AUTH_TOKEN）");
+      return;
+    }
+
+    const credentials: Record<string, unknown> = {
+      api_key: glmApiKey.value.trim(),
+    };
+    if (glmBaseUrl.value.trim()) {
+      credentials.base_url = glmBaseUrl.value.trim();
+    }
+
+    const glmModelMapping = buildModelMappingObject(
+      "mapping",
+      [],
+      glmModelMappings.value
+    );
+    if (glmModelMapping) {
+      credentials.model_mapping = glmModelMapping;
+    }
+
+    submitting.value = true;
+    try {
+      const extra = mixedScheduling.value
+        ? { mixed_scheduling: true }
+        : undefined;
+      await createAccountAndFinish("glm", "apikey", credentials, extra);
     } catch (error: any) {
       appStore.showError(
         error.response?.data?.detail || t("admin.accounts.failedToCreate")

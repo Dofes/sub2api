@@ -256,15 +256,15 @@ func (s *GeminiMessagesCompatService) isAccountUsableForRequest(
 }
 
 // isAccountValidForPlatform 检查账号是否匹配目标平台。
-// 原生平台直接匹配；混合调度模式下 antigravity 需要启用 mixed_scheduling。
+// 原生平台直接匹配；混合调度模式下需要启用 mixed_scheduling。
 //
 // isAccountValidForPlatform checks if account matches target platform.
-// Native platform matches directly; mixed scheduling mode requires antigravity to enable mixed_scheduling.
+// Native platform matches directly; mixed scheduling mode requires enabling mixed_scheduling.
 func (s *GeminiMessagesCompatService) isAccountValidForPlatform(account *Account, platform string, useMixedScheduling bool) bool {
 	if account.Platform == platform {
 		return true
 	}
-	if useMixedScheduling && account.Platform == PlatformAntigravity && account.IsMixedSchedulingEnabled() {
+	if useMixedScheduling && account.IsMixedSchedulingEnabled() {
 		return true
 	}
 	return false
@@ -391,7 +391,7 @@ func (s *GeminiMessagesCompatService) listSchedulableAccountsOnce(ctx context.Co
 	useMixedScheduling := platform == PlatformGemini && !hasForcePlatform
 	queryPlatforms := []string{platform}
 	if useMixedScheduling {
-		queryPlatforms = []string{platform, PlatformAntigravity}
+		queryPlatforms = []string{platform, PlatformAntigravity, PlatformOpenAICompat, PlatformOpenRouter, PlatformGLM}
 	}
 
 	if groupID != nil {

@@ -26,6 +26,7 @@ const (
 	PlatformAntigravity  = domain.PlatformAntigravity
 	PlatformOpenAICompat = domain.PlatformOpenAICompat
 	PlatformOpenRouter   = domain.PlatformOpenRouter // 向后兼容
+	PlatformGLM          = domain.PlatformGLM
 )
 
 // Account type constants

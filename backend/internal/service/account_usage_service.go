@@ -79,6 +79,12 @@ type antigravityUsageCache struct {
 	timestamp time.Time
 }
 
+// glmUsageCache 缓存 GLM 额度数据
+type glmUsageCache struct {
+	usageInfo *UsageInfo
+	timestamp time.Time
+}
+
 const (
 	apiCacheTTL         = 3 * time.Minute
 	windowStatsCacheTTL = 1 * time.Minute
@@ -89,6 +95,7 @@ type UsageCache struct {
 	apiCache         sync.Map // accountID -> *apiUsageCache
 	windowStatsCache sync.Map // accountID -> *windowStatsCache
 	antigravityCache sync.Map // accountID -> *antigravityUsageCache
+	glmCache         sync.Map // accountID -> *glmUsageCache
 }
 
 // NewUsageCache 创建 UsageCache 实例
@@ -181,6 +188,7 @@ type AccountUsageService struct {
 	usageFetcher            ClaudeUsageFetcher
 	geminiQuotaService      *GeminiQuotaService
 	antigravityQuotaFetcher *AntigravityQuotaFetcher
+	glmQuotaFetcher         *GLMQuotaFetcher
 	cache                   *UsageCache
 	identityCache           IdentityCache
 }
@@ -192,6 +200,7 @@ func NewAccountUsageService(
 	usageFetcher ClaudeUsageFetcher,
 	geminiQuotaService *GeminiQuotaService,
 	antigravityQuotaFetcher *AntigravityQuotaFetcher,
+	glmQuotaFetcher *GLMQuotaFetcher,
 	cache *UsageCache,
 	identityCache IdentityCache,
 ) *AccountUsageService {
@@ -201,6 +210,7 @@ func NewAccountUsageService(
 		usageFetcher:            usageFetcher,
 		geminiQuotaService:      geminiQuotaService,
 		antigravityQuotaFetcher: antigravityQuotaFetcher,
+		glmQuotaFetcher:         glmQuotaFetcher,
 		cache:                   cache,
 		identityCache:           identityCache,
 	}
@@ -223,6 +233,11 @@ func (s *AccountUsageService) GetUsage(ctx context.Context, accountID int64) (*U
 	// Antigravity 平台：使用 AntigravityQuotaFetcher 获取额度
 	if account.Platform == PlatformAntigravity {
 		return s.getAntigravityUsage(ctx, account)
+	}
+
+	// GLM 平台：使用 GLMQuotaFetcher 获取额度
+	if account.Platform == PlatformGLM {
+		return s.getGLMUsage(ctx, account)
 	}
 
 	// 只有oauth类型账号可以通过API获取usage（有profile scope）
@@ -363,6 +378,43 @@ func (s *AccountUsageService) getAntigravityUsage(ctx context.Context, account *
 	})
 
 	return result.UsageInfo, nil
+}
+
+// getGLMUsage 获取 GLM 账户额度
+func (s *AccountUsageService) getGLMUsage(ctx context.Context, account *Account) (*UsageInfo, error) {
+	if s.glmQuotaFetcher == nil || !s.glmQuotaFetcher.CanFetch(account) {
+		now := time.Now()
+		return &UsageInfo{UpdatedAt: &now}, nil
+	}
+
+	// 1. 检查缓存（3 分钟）
+	if cached, ok := s.cache.glmCache.Load(account.ID); ok {
+		if cache, ok := cached.(*glmUsageCache); ok && time.Since(cache.timestamp) < apiCacheTTL {
+			// 重新计算 RemainingSeconds
+			usage := cache.usageInfo
+			if usage.FiveHour != nil && usage.FiveHour.ResetsAt != nil {
+				usage.FiveHour.RemainingSeconds = int(time.Until(*usage.FiveHour.ResetsAt).Seconds())
+			}
+			return usage, nil
+		}
+	}
+
+	// 2. 获取代理 URL
+	proxyURL := s.glmQuotaFetcher.GetProxyURL(ctx, account)
+
+	// 3. 调用 API 获取额度
+	usageInfo, err := s.glmQuotaFetcher.FetchQuota(ctx, account, proxyURL)
+	if err != nil {
+		return nil, fmt.Errorf("fetch GLM quota failed: %w", err)
+	}
+
+	// 4. 缓存结果
+	s.cache.glmCache.Store(account.ID, &glmUsageCache{
+		usageInfo: usageInfo,
+		timestamp: time.Now(),
+	})
+
+	return usageInfo, nil
 }
 
 // addWindowStats 为 usage 数据添加窗口期统计

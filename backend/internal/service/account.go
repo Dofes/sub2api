@@ -423,6 +423,9 @@ func (a *Account) GetBaseURL() string {
 	}
 	baseURL := a.GetCredential("base_url")
 	if baseURL == "" {
+		if a.Platform == PlatformGLM {
+			return "https://open.bigmodel.cn/api/anthropic"
+		}
 		return "https://api.anthropic.com"
 	}
 	if a.Platform == PlatformAntigravity {
@@ -679,10 +682,14 @@ func (a *Account) IsOpenAITokenExpired() bool {
 	return time.Now().Add(60 * time.Second).After(*expiresAt)
 }
 
-// IsMixedSchedulingEnabled 检查 antigravity 账户是否启用混合调度
+// IsMixedSchedulingEnabled 检查账户是否启用混合调度
 // 启用后可参与 anthropic/gemini 分组的账户调度
+// 支持 antigravity、openai_compat、openrouter、glm 平台
 func (a *Account) IsMixedSchedulingEnabled() bool {
-	if a.Platform != PlatformAntigravity {
+	switch a.Platform {
+	case PlatformAntigravity, PlatformOpenAICompat, PlatformOpenRouter, PlatformGLM:
+		// supported
+	default:
 		return false
 	}
 	if a.Extra == nil {
@@ -714,12 +721,23 @@ func (a *Account) IsAnthropicOAuthOrSetupToken() bool {
 	return a.Platform == PlatformAnthropic && (a.Type == AccountTypeOAuth || a.Type == AccountTypeSetupToken)
 }
 
+// SupportsQuotaControl 判断账号是否支持配额控制功能
+// 支持的账号类型：Anthropic OAuth/SetupToken、GLM APIKey
+func (a *Account) SupportsQuotaControl() bool {
+	if a.IsAnthropicOAuthOrSetupToken() {
+		return true
+	}
+	if a.Platform == PlatformGLM && a.Type == AccountTypeAPIKey {
+		return true
+	}
+	return false
+}
+
 // IsTLSFingerprintEnabled 检查是否启用 TLS 指纹伪装
-// 仅适用于 Anthropic OAuth/SetupToken 类型账号
+// 适用于 Anthropic OAuth/SetupToken 和 GLM APIKey 账号
 // 启用后将模拟 Claude Code (Node.js) 客户端的 TLS 握手特征
 func (a *Account) IsTLSFingerprintEnabled() bool {
-	// 仅支持 Anthropic OAuth/SetupToken 账号
-	if !a.IsAnthropicOAuthOrSetupToken() {
+	if !a.SupportsQuotaControl() {
 		return false
 	}
 	if a.Extra == nil {
@@ -734,11 +752,11 @@ func (a *Account) IsTLSFingerprintEnabled() bool {
 }
 
 // IsSessionIDMaskingEnabled 检查是否启用会话ID伪装
-// 仅适用于 Anthropic OAuth/SetupToken 类型账号
+// 适用于 Anthropic OAuth/SetupToken 和 GLM APIKey 账号
 // 启用后将在一段时间内（15分钟）固定 metadata.user_id 中的 session ID，
 // 使上游认为请求来自同一个会话
 func (a *Account) IsSessionIDMaskingEnabled() bool {
-	if !a.IsAnthropicOAuthOrSetupToken() {
+	if !a.SupportsQuotaControl() {
 		return false
 	}
 	if a.Extra == nil {
